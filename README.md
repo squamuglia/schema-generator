@@ -16,5 +16,5 @@ npm install gql-schema-generator
 and run:
 
 ```
-generate-schema -r [name of your repository] -o [output file name].gql
+generate-schema -u [url of graphql endpoint] -o [output file name].gql
 ```

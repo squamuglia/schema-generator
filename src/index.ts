@@ -122,11 +122,11 @@ query IntrospectionQuery {
   `;
 
 export async function generateSchema(
-	gqlUrl: string,
+	url: string,
 	outputFilename: string
 ): Promise<void> {
 	// Get schema
-	const schemaData = await fetch(gqlUrl, {
+	const schemaData = await fetch(url, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 	});
@@ -179,10 +179,10 @@ function json2Sdl(rawjson: any): string {
 async function run(): Promise<void> {
 	commander
 		.usage('[options] ...')
-		.description('Downloads the latest Prismic GraphQL schema file.')
+		.description('Downloads a GraphQL schema file from an endpoint.')
 		.option(
-			'-r, --repository-name <repository>',
-			'Url for prismic endpoint: [your-repository].prismic.io'
+			'-u, --url <url>',
+			'Url for graphql api endpoint. ex: https://website.com/graphql'
 		)
 		.option(
 			'-o, --output-filename <fileName>',
@@ -190,14 +190,14 @@ async function run(): Promise<void> {
 		)
 		.parse(process.argv);
 
-	const { gqlUrl, outputFilename } = commander;
+	const { url, outputFilename } = commander;
 
-	if (!gqlUrl || !outputFilename) {
+	if (!url || !outputFilename) {
 		commander.help();
 		return;
 	}
 
-	await generateSchema(gqlUrl, outputFilename);
+	await generateSchema(url, outputFilename);
 }
 
 run().catch((e) => {

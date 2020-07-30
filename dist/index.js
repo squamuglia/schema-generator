@@ -49,12 +49,12 @@ var util_1 = __importDefault(require("util"));
 var writeFile = util_1.default.promisify(fs_1.default.writeFile);
 var HEADER_COMMENT = "\n# ----------------------- IMPORTANT -------------------------------\n#\n#      The contents of this file are AUTOMATICALLY GENERATED.  Please do\n#      not edit this file directly.  To modify its contents, make\n#      changes to your schema in Prismic, and re-run this command line.\n#\n# -----------------------------------------------------------------\n";
 var QUERY = "\nquery IntrospectionQuery {\n    __schema {\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  \n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  \n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  \n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  ";
-function generateSchema(gqlUrl, outputFilename) {
+function generateSchema(url, outputFilename) {
     return __awaiter(this, void 0, void 0, function () {
         var schemaData, schemaJson, sdl;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, isomorphic_fetch_1.default(gqlUrl, {
+                case 0: return [4 /*yield*/, isomorphic_fetch_1.default(url, {
                         method: 'GET',
                         headers: { 'Content-Type': 'application/json' },
                     })];
@@ -104,22 +104,22 @@ function json2Sdl(rawjson) {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var gqlUrl, outputFilename;
+        var url, outputFilename;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     commander_1.default
                         .usage('[options] ...')
-                        .description('Downloads the latest Prismic GraphQL schema file.')
-                        .option('-r, --repository-name <repository>', 'Url for prismic endpoint: [your-repository].prismic.io')
+                        .description('Downloads a GraphQL schema file from an endpoint.')
+                        .option('-u, --url <url>', 'Url for graphql api endpoint. ex: https://website.com/graphql')
                         .option('-o, --output-filename <fileName>', 'Name of file to be output. Should be appended with .gql')
                         .parse(process.argv);
-                    gqlUrl = commander_1.default.gqlUrl, outputFilename = commander_1.default.outputFilename;
-                    if (!gqlUrl || !outputFilename) {
+                    url = commander_1.default.url, outputFilename = commander_1.default.outputFilename;
+                    if (!url || !outputFilename) {
                         commander_1.default.help();
                         return [2 /*return*/];
                     }
-                    return [4 /*yield*/, generateSchema(gqlUrl, outputFilename)];
+                    return [4 /*yield*/, generateSchema(url, outputFilename)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
