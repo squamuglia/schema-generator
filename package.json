@@ -1,5 +1,5 @@
 {
-	"name": "schema-generator",
+	"name": "gql-schema-generator",
 	"version": "1.0.0",
 	"description": "Generates a gql SDL file from a gql schema",
 	"main": "src/index.ts",
@@ -14,7 +14,7 @@
 		"access": "public"
 	},
 	"bin": {
-		"schema-generator": "dist/index.js"
+		"generate-schema": "dist/index.js"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
