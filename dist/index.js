@@ -54,7 +54,7 @@ function generateSchema(url, outputFilename) {
         var schemaData, schemaJson, sdl;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, isomorphic_fetch_1.default(url, {
+                case 0: return [4 /*yield*/, isomorphic_fetch_1.default(url + "?query=" + QUERY, {
                         method: 'GET',
                         headers: { 'Content-Type': 'application/json' },
                     })];

@@ -126,7 +126,7 @@ export async function generateSchema(
 	outputFilename: string
 ): Promise<void> {
 	// Get schema
-	const schemaData = await fetch(url, {
+	const schemaData = await fetch(`${url}?query=${QUERY}`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 	});
