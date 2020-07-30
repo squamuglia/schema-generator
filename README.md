@@ -7,9 +7,9 @@ If you're like me and you like to validate data as it comes into your applicatio
 ### Getting Started
 
 ```
-yarn add gql-schema-generator
+yarn global add gql-schema-generator
 
-npm install gql-schema-generator
+npm install -g gql-schema-generator
 
 ```
 
