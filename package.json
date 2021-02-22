@@ -14,12 +14,15 @@
 		"access": "public"
 	},
 	"bin": {
-		"generate-schema": "dist/index.js"
+		"generate-schema": "dist/index.js",
+		"generate-schema-from-url": "dist/index.js",
+		"generate-schema-from-file": "dist/json-parser.js"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "rimraf dist && tsc",
-		"start": "ts-node --project bin.tsconfig.json -r tsconfig-paths/register src/index.ts"
+		"start": "ts-node --project bin.tsconfig.json -r tsconfig-paths/register src/index.ts",
+		"generate-local-schema": "ts-node --project bin.tsconfig.json -r tsconfig-paths/register src/json-parser.ts"
 	},
 	"devDependencies": {
 		"@types/commander": "^2.12.2",
