@@ -25,6 +25,7 @@ export async function generateSchema(
 	outputFilename: string,
 	rawHeaders?: string[]
 ): Promise<void> {
+	console.log('Warming up...');
 	const headers = { 'Content-Type': 'application/json' };
 
 	rawHeaders?.forEach((h) => {
@@ -35,14 +36,17 @@ export async function generateSchema(
 		headers[key.trim()] = value.trim();
 	});
 
-	const body = JSON.stringify({ query: getIntrospectionQuery() });
+	console.log('Fetching schema...');
 
 	// Get schema
+	const body = JSON.stringify({ query: getIntrospectionQuery() });
 	const schemaData = await fetch(url, {
 		method: 'POST',
 		body,
 		headers,
 	});
+
+	console.log('Cleaning up...');
 
 	// Convert to SDL
 	const schemaJson = await schemaData.json();
@@ -57,8 +61,12 @@ export async function generateSchema(
 	}
   `;
 
+	console.log('Outputting file...');
+
 	// Write to filename
 	await writeFile(outputFilename, sdl);
+
+	console.log('Success!');
 }
 
 function json2Sdl(rawjson: any): string {

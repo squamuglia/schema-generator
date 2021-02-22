@@ -60,6 +60,7 @@ function generateSchema(inputFilename, outputFilename) {
                 case 1:
                     // Write to filename
                     _a.sent();
+                    console.log('Success!');
                     return [2 /*return*/];
             }
         });

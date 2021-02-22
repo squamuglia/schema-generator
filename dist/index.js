@@ -42,19 +42,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var buildClientSchema_1 = require("graphql/utilities/buildClientSchema");
 var schemaPrinter_1 = require("graphql/utilities/schemaPrinter");
+var introspectionQuery_1 = require("graphql/utilities/introspectionQuery");
 var commander_1 = require("commander");
 var isomorphic_fetch_1 = __importDefault(require("isomorphic-fetch"));
 var fs_1 = __importDefault(require("fs"));
 var util_1 = __importDefault(require("util"));
 var writeFile = util_1.default.promisify(fs_1.default.writeFile);
 var HEADER_COMMENT = "\n# ----------------------- IMPORTANT -------------------------------\n#\n#      The contents of this file are AUTOMATICALLY GENERATED.  Please do\n#      not edit this file directly.  To modify its contents, make\n#      changes to your schema, and re-run this command line.\n#\n# -----------------------------------------------------------------\n";
-var QUERY = "\nquery IntrospectionQuery {\n    __schema {\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  \n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  \n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  \n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  ";
 function generateSchema(url, outputFilename, rawHeaders) {
     return __awaiter(this, void 0, void 0, function () {
-        var headers, schemaData, schemaJson, sdl;
+        var headers, body, schemaData, schemaJson, sdl;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    console.log('Warming up...');
                     headers = { 'Content-Type': 'application/json' };
                     rawHeaders === null || rawHeaders === void 0 ? void 0 : rawHeaders.forEach(function (h) {
                         if (!h.includes(':')) {
@@ -63,21 +64,27 @@ function generateSchema(url, outputFilename, rawHeaders) {
                         var _a = h.split(':'), key = _a[0], value = _a[1];
                         headers[key.trim()] = value.trim();
                     });
-                    return [4 /*yield*/, isomorphic_fetch_1.default(url + "?query=" + QUERY, {
-                            method: 'GET',
+                    console.log('Fetching schema...');
+                    body = JSON.stringify({ query: introspectionQuery_1.getIntrospectionQuery() });
+                    return [4 /*yield*/, isomorphic_fetch_1.default(url, {
+                            method: 'POST',
+                            body: body,
                             headers: headers,
                         })];
                 case 1:
                     schemaData = _a.sent();
+                    console.log('Cleaning up...');
                     return [4 /*yield*/, schemaData.json()];
                 case 2:
                     schemaJson = _a.sent();
                     sdl = "\n  " + HEADER_COMMENT + "\n\n  " + json2Sdl(schemaJson).replace(/Json/gm, 'JSON') /* Uppercase JSON for consistency*/ + "\n  ";
+                    console.log('Outputting file...');
                     // Write to filename
                     return [4 /*yield*/, writeFile(outputFilename, sdl)];
                 case 3:
                     // Write to filename
                     _a.sent();
+                    console.log('Success!');
                     return [2 /*return*/];
             }
         });

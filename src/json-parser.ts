@@ -39,6 +39,7 @@ export async function generateSchema(
 
 	// Write to filename
 	await writeFile(outputFilename, sdl);
+	console.log('Success!');
 }
 
 function json2Sdl(rawjson: any): string {
