@@ -2,6 +2,7 @@
 
 import { buildClientSchema } from 'graphql/utilities/buildClientSchema';
 import { printSchema } from 'graphql/utilities/schemaPrinter';
+import { getIntrospectionQuery } from 'graphql/utilities/introspectionQuery';
 import { program } from 'commander';
 import fetch from 'isomorphic-fetch';
 import fs from 'fs';
@@ -19,108 +20,6 @@ const HEADER_COMMENT = `
 # -----------------------------------------------------------------
 `;
 
-const QUERY = `
-query IntrospectionQuery {
-    __schema {
-      queryType {
-        name
-      }
-      mutationType {
-        name
-      }
-      subscriptionType {
-        name
-      }
-      types {
-        ...FullType
-      }
-      directives {
-        name
-        description
-        locations
-        args {
-          ...InputValue
-        }
-      }
-    }
-  }
-  
-  fragment FullType on __Type {
-    kind
-    name
-    description
-    fields(includeDeprecated: true) {
-      name
-      description
-      args {
-        ...InputValue
-      }
-      type {
-        ...TypeRef
-      }
-      isDeprecated
-      deprecationReason
-    }
-    inputFields {
-      ...InputValue
-    }
-    interfaces {
-      ...TypeRef
-    }
-    enumValues(includeDeprecated: true) {
-      name
-      description
-      isDeprecated
-      deprecationReason
-    }
-    possibleTypes {
-      ...TypeRef
-    }
-  }
-  
-  fragment InputValue on __InputValue {
-    name
-    description
-    type {
-      ...TypeRef
-    }
-    defaultValue
-  }
-  
-  fragment TypeRef on __Type {
-    kind
-    name
-    ofType {
-      kind
-      name
-      ofType {
-        kind
-        name
-        ofType {
-          kind
-          name
-          ofType {
-            kind
-            name
-            ofType {
-              kind
-              name
-              ofType {
-                kind
-                name
-                ofType {
-                  kind
-                  name
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  `;
-
 export async function generateSchema(
 	url: string,
 	outputFilename: string,
@@ -136,9 +35,12 @@ export async function generateSchema(
 		headers[key.trim()] = value.trim();
 	});
 
+	const body = JSON.stringify({ query: getIntrospectionQuery() });
+
 	// Get schema
-	const schemaData = await fetch(`${url}?query=${QUERY}`, {
-		method: 'GET',
+	const schemaData = await fetch(url, {
+		method: 'POST',
+		body,
 		headers,
 	});
 
