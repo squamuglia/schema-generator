@@ -1,6 +1,6 @@
 {
 	"name": "gql-schema-generator",
-	"version": "1.0.5",
+	"version": "1.1.0",
 	"description": "Generates a gql SDL file from a gql schema",
 	"main": "src/index.ts",
 	"author": "Max Smouha",
