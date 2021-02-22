@@ -2,7 +2,7 @@
 
 import { buildClientSchema } from 'graphql/utilities/buildClientSchema';
 import { printSchema } from 'graphql/utilities/schemaPrinter';
-import commander from 'commander';
+import { program } from 'commander';
 import fetch from 'isomorphic-fetch';
 import fs from 'fs';
 import util from 'util';
@@ -14,7 +14,7 @@ const HEADER_COMMENT = `
 #
 #      The contents of this file are AUTOMATICALLY GENERATED.  Please do
 #      not edit this file directly.  To modify its contents, make
-#      changes to your schema in Prismic, and re-run this command line.
+#      changes to your schema, and re-run this command line.
 #
 # -----------------------------------------------------------------
 `;
@@ -123,12 +123,23 @@ query IntrospectionQuery {
 
 export async function generateSchema(
 	url: string,
-	outputFilename: string
+	outputFilename: string,
+	rawHeaders?: string[]
 ): Promise<void> {
+	const headers = { 'Content-Type': 'application/json' };
+
+	rawHeaders?.forEach((h) => {
+		if (!h.includes(':')) {
+			console.error('Invalid headers: header must be key value pair', h);
+		}
+		const [key, value] = h.split(':');
+		headers[key.trim()] = value.trim();
+	});
+
 	// Get schema
 	const schemaData = await fetch(`${url}?query=${QUERY}`, {
 		method: 'GET',
-		headers: { 'Content-Type': 'application/json' },
+		headers,
 	});
 
 	// Convert to SDL
@@ -177,7 +188,7 @@ function json2Sdl(rawjson: any): string {
 }
 
 async function run(): Promise<void> {
-	commander
+	program
 		.usage('[options] ...')
 		.description('Downloads a GraphQL schema file from an endpoint.')
 		.option(
@@ -188,16 +199,16 @@ async function run(): Promise<void> {
 			'-o, --output-filename <fileName>',
 			'Name of file to be output. Should be appended with .gql'
 		)
+		.option('-h, --headers [headers...]', 'Headers to be appended to request')
 		.parse(process.argv);
 
-	const { url, outputFilename } = commander;
+	const { url, outputFilename, headers } = program.opts();
 
 	if (!url || !outputFilename) {
-		commander.help();
-		return;
+		return program.help();
 	}
 
-	await generateSchema(url, outputFilename);
+	await generateSchema(url, outputFilename, headers);
 }
 
 run().catch((e) => {

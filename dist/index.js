@@ -42,22 +42,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var buildClientSchema_1 = require("graphql/utilities/buildClientSchema");
 var schemaPrinter_1 = require("graphql/utilities/schemaPrinter");
-var commander_1 = __importDefault(require("commander"));
+var commander_1 = require("commander");
 var isomorphic_fetch_1 = __importDefault(require("isomorphic-fetch"));
 var fs_1 = __importDefault(require("fs"));
 var util_1 = __importDefault(require("util"));
 var writeFile = util_1.default.promisify(fs_1.default.writeFile);
-var HEADER_COMMENT = "\n# ----------------------- IMPORTANT -------------------------------\n#\n#      The contents of this file are AUTOMATICALLY GENERATED.  Please do\n#      not edit this file directly.  To modify its contents, make\n#      changes to your schema in Prismic, and re-run this command line.\n#\n# -----------------------------------------------------------------\n";
+var HEADER_COMMENT = "\n# ----------------------- IMPORTANT -------------------------------\n#\n#      The contents of this file are AUTOMATICALLY GENERATED.  Please do\n#      not edit this file directly.  To modify its contents, make\n#      changes to your schema, and re-run this command line.\n#\n# -----------------------------------------------------------------\n";
 var QUERY = "\nquery IntrospectionQuery {\n    __schema {\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  \n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  \n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  \n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  ";
-function generateSchema(url, outputFilename) {
+function generateSchema(url, outputFilename, rawHeaders) {
     return __awaiter(this, void 0, void 0, function () {
-        var schemaData, schemaJson, sdl;
+        var headers, schemaData, schemaJson, sdl;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, isomorphic_fetch_1.default(url + "?query=" + QUERY, {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' },
-                    })];
+                case 0:
+                    headers = { 'Content-Type': 'application/json' };
+                    rawHeaders === null || rawHeaders === void 0 ? void 0 : rawHeaders.forEach(function (h) {
+                        if (!h.includes(':')) {
+                            console.error('Invalid headers: header must be key value pair', h);
+                        }
+                        var _a = h.split(':'), key = _a[0], value = _a[1];
+                        headers[key.trim()] = value.trim();
+                    });
+                    return [4 /*yield*/, isomorphic_fetch_1.default(url + "?query=" + QUERY, {
+                            method: 'GET',
+                            headers: headers,
+                        })];
                 case 1:
                     schemaData = _a.sent();
                     return [4 /*yield*/, schemaData.json()];
@@ -104,24 +113,24 @@ function json2Sdl(rawjson) {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var url, outputFilename;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a, url, outputFilename, headers;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    commander_1.default
+                    commander_1.program
                         .usage('[options] ...')
                         .description('Downloads a GraphQL schema file from an endpoint.')
                         .option('-u, --url <url>', 'Url for graphql api endpoint. ex: https://website.com/graphql')
                         .option('-o, --output-filename <fileName>', 'Name of file to be output. Should be appended with .gql')
+                        .option('-h, --headers [headers...]', 'Headers to be appended to request')
                         .parse(process.argv);
-                    url = commander_1.default.url, outputFilename = commander_1.default.outputFilename;
+                    _a = commander_1.program.opts(), url = _a.url, outputFilename = _a.outputFilename, headers = _a.headers;
                     if (!url || !outputFilename) {
-                        commander_1.default.help();
-                        return [2 /*return*/];
+                        return [2 /*return*/, commander_1.program.help()];
                     }
-                    return [4 /*yield*/, generateSchema(url, outputFilename)];
+                    return [4 /*yield*/, generateSchema(url, outputFilename, headers)];
                 case 1:
-                    _a.sent();
+                    _b.sent();
                     return [2 /*return*/];
             }
         });

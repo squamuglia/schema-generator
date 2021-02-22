@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"esModuleInterop": true,
+		"target": "es2015",
+		"strictNullChecks": true,
+		"alwaysStrict": false,
+		"allowJs": true,
+		"skipLibCheck": true,
+		"noImplicitAny": false,
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"inlineSources": true,
+		"sourceMap": true,
+		"noEmit": true,
+		"sourceRoot": "/",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["*"],
+			"*": ["node_modules/*", "types/*"]
+		}
+	},
+	"include": ["src/*.ts"]
+}
